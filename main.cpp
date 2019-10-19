@@ -110,28 +110,97 @@ class Board
 {
     public:
         // Constructor declarations  
+        Board();
+        Board( int boardNumber, int allBoardArr[], int parValue);
 
-    
         // Get and Set member functions, corresponding to the private data members
+        Board getBoard(){
 
+        }
     
         // Utility member function declarations.  
-
+        void DisplayBoard();
 
     private:
         // The private data members go here
-        // ...
-        // 
+        int boardNumber;
+        char boardArr[8][10];
+        int parValue;
+
+        //private functions go here.
+        char ChangeNumToChar(int val);
+
+
 };  // end class Board
 
+// Default constructor deceleration for Board ---------------------------------------------------------------------
+Board::Board(){
+    boardNumber = -1;
+    parValue= -1;
+    // setting all elements of board to -1
+    for(int i = 0; i < BoardRows; i++){
+        for(int j = 0; j < BoardColumns ; j++){
+            boardArr[i][j] = -1;
+        }
+    }
+} //Board::Board() ends here.
 
+// Overloaded Constructor for Board class -------------------------------------------------------------------------
+Board::Board(int boardNumber, int allBoardArr[], int parValue){
+    this->boardNumber = boardNumber;
+    this->parValue = parValue;
+    //deciphering elements from a 1d array to a 2d array.
+    for(int i = 0; i < BoardRows; i++){
+        for (int j = 0; j < BoardColumns; j++){
+            char c = ChangeNumToChar(allBoardArr[i*BoardColumns + j]);
+            this->boardArr[i][j] = c;
+        }
+    }
+} // Board::Board(int boardNumber... ends here.
+
+// printing the board() ------------------------------------------------------------------------------------------
+void Board::DisplayBoard(){
+    char rowChar = 'A';
+
+    cout << "    Board " << boardNumber << " with par " << parValue <<" is: " << endl;
+    cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
+    cout << "    -----------------------" << endl;
+
+    for(int i = 0; i < BoardRows; i++) {
+        cout << "  "<< rowChar << " | ";
+        for (int j = 0; j < BoardColumns; j++) {
+            cout << boardArr[i][j] << " ";
+        }
+        cout << " | "<< rowChar << endl;
+        rowChar ++;
+    }
+    cout << "    -----------------------" << endl;
+    cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
+} //Board::DisplayBoard() ends here.
+
+// To convert integer value to the desired char--------------------------------------------------------------------
+// This function is private function of class Board.
+char Board::ChangeNumToChar(int val){
+    switch(val){
+        case 0: return ' ';
+        case 1: return '&';
+        case 2: return '@';
+        case 3: return '+';
+        case 4: return '%';
+        case 5: return '^';
+        case 6: return '#';
+        case 7: return '=';
+        case 8: return '*';
+        case 9: return '.';
+    }
+}// Board::changeNumToChar() ends here.
 
 //------------------------------------------------------------------------------------------------------------------
 // Class used to read in and store all game boards
 class AllBoards
 {
     public:
-        //------------------------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------
         // Constructor that reads in data from the data file.
         AllBoards();    // Declaration.  See the definition outside the class, below.
     
@@ -147,7 +216,7 @@ class AllBoards
                      << boardIndex << " is out of range. Exiting..." << endl;
                 exit( -1);
             }
-            
+
             // Construct a Board from one of all the boards
             Board newBoard( boardIndex, allBoards[ boardIndex], levelParValues[ boardIndex]);
             return newBoard;
@@ -253,6 +322,7 @@ void displayDirections()
 }
 
 
+
 //------------------------------------------------------------------------------------------------------------------
 // Driver for the program, using the classes and functions declared above
 int main()
@@ -261,11 +331,36 @@ int main()
     int currentBoardIndex = 0;  // Starting board index
     Board theBoard;             // The board instance, that is set to hold the values for each level
     int score = 0;              // Score accumulates par points for each level finished
-    
+    int stepCount =1;
+    char userInput;
     displayDirections();
-    
-	theBoard = allTheBoards.getBoard( currentBoardIndex);
-	theBoard.displayBoard();
+
+    while(true){
+        theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
+        theBoard.DisplayBoard();
+
+        cout << stepCount <<". Your move: ";
+        cin >> userInput;
+        char upperInput = toupper(userInput);
+        if( upperInput == 'X'){ // exiting the game.
+            break;
+        }
+        else if(upperInput == 'R'){ // resitting the level
+            stepCount = 1;
+            continue;
+        }
+        else if(upperInput == 'S'){
+            cin >> currentBoardIndex;
+            continue;
+        }
+        else{
+
+        }
+
+    }
+
+
+
         
     return 0;
 }
