@@ -91,6 +91,7 @@
  */
 #include <iostream>   // For cin, cout
 #include <fstream>    // For file input
+#include <vector>     // to use vector
 #include <chrono>     // Used in pausing for some milliseconds using sleep_for(...)
 #include <thread>     // Used in pausing for some milliseconds using sleep_for(...)
 using namespace std;
@@ -102,7 +103,7 @@ const int BoardColumns = 10;
 const int NumberOfPresetBoardParValues = 60;    // After the first 60 par values, the default par value is 15
 const char FileName[] = "boards.txt";
 const int SleepAmount = 150;                    // Length of time to pause, in milliseconds
-
+const char players[] = {'&', '@', '+', '%', '^', '#', '=', '*'};
 
 //------------------------------------------------------------------------------------------------------------------
 // Class used to store a game board
@@ -114,8 +115,151 @@ class Board
         Board( int boardNumber, int allBoardArr[], int parValue);
 
         // Get and Set member functions, corresponding to the private data members
-        Board getBoard(){
+        int GetPar(){
+            return parValue;
+        }
 
+        int checkArray(int rowInput, int columnInput, char direction){
+            char temp = boardArr[rowInput][columnInput];
+            if( temp == '.' || temp == ' '){
+                cout << "Attempting to move an invalid character.  Please retry." << endl;
+                return -1; //since error
+            }
+            else {
+                if( boardArr[rowInput][columnInput+1] == ' ' && direction == 'R'){
+                    boardArr[rowInput][columnInput+1] = boardArr[rowInput][columnInput];
+                    boardArr[rowInput][columnInput] = ' ';
+                    this-> DisplayBoard();
+                    this->doSomething();
+                }
+                else if( boardArr[rowInput][columnInput-1] == ' ' && direction == 'L' ){
+                    boardArr[rowInput][columnInput-1] = boardArr[rowInput][columnInput];
+                    boardArr[rowInput][columnInput] = ' ';
+                    this-> DisplayBoard();
+                    this->doSomething();
+                }
+                else{
+                    cout << "Attempting to move into a non-empty space.  Please retry." << endl;
+                    return -1; // since error
+                }
+
+            }
+            return 0; // valid input hence 0.
+
+        }
+        void doSomething(){
+
+
+            GravityEffect(); // if any elements are floating then use gravity to bring them down.
+
+            for (int i = 0; i < sizeof(players); ++i) { // iterating through all the game pieces and checking if any could be eliminated.
+                int sudoIndex = this->MagicIndex(players[i]); //returns sudo index. (i am not considering the case where there are multiple instances of max values)
+                if(sudoIndex != 0) {
+                    this->Vanish(sudoIndex);
+                    this-> DisplayBoard();
+                    doSomething();
+                }
+            }
+        }
+
+        void GravityEffect(){
+            while(GravityRequired()){
+                for (int i = 0; i < BoardRows; ++i) {
+                    for (int j = 0; j < BoardColumns; ++j) {
+                        char element = boardArr[i][j];
+                        if( element != '.' && element != ' '){
+                            if(boardArr[i+1][j] == ' '){
+                                boardArr[i+1][j] = element;
+                                boardArr[i][j] = ' ';
+                                this-> DisplayBoard();
+
+                            }
+                        }
+                    }
+                }
+            }
+
+        }// GravityEffect() ends here.
+
+        bool GravityRequired(){
+            for (int i = 0; i < BoardRows; ++i) {
+                for (int j = 0; j < BoardColumns; ++j) {
+                    char element = boardArr[i][j];
+                    if( element != '.' && element != ' '){
+                        if(boardArr[i+1][j] == ' '){
+                           return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        int MagicIndex(char c){
+            int temp[BoardRows][BoardColumns];
+            for (int i = 0; i < BoardRows; i++){ // initializing temp 2d array
+                for (int j = 0; j < BoardColumns; j++) {
+                    temp[i][j] = 0;
+                }
+            }
+
+            for (int i = 0; i < BoardRows; ++i) { // iterating through boardArr to ind the character occurrences.
+                for (int j = 0; j < BoardColumns; ++j) {
+                    if(boardArr[i][j] == c){
+                        int count = 0;
+                        if(boardArr[i+1][j] == c){ count++; }
+                        if(boardArr[i-1][j] == c){ count++; }
+                        if(boardArr[i][j+1] == c){ count++; }
+                        if(boardArr[i][j-1] == c){ count++; }
+                        temp[i][j] = count;
+                    }
+                }
+            }
+            int highestIndexValue = 0;
+            int rowIndex= 0, columnIndex= 0;
+            for (int i = 0; i < BoardRows ; ++i) {
+                for (int j = 0; j <  BoardColumns; ++j) {
+                    if(temp[i][j] > highestIndexValue){
+                        highestIndexValue = temp[i][j];
+                        rowIndex = i;
+                        columnIndex = j;
+                    }
+
+                }
+
+            }
+            return 10*rowIndex+columnIndex;
+
+        }
+
+        void Vanish(int sudoIndex){
+            int i = sudoIndex/ 10;
+            int j = sudoIndex% 10;
+            char element = boardArr[i][j];
+           // cout << endl << element << "-------------------" <<endl;
+            if(boardArr[i][j+1] == element || boardArr[i][j-1] == element || boardArr[i+1][j] == element){
+                if(boardArr[i][j+1] == element){ // checking right
+                    boardArr[i][j+1] = ' ';
+                }
+                if(boardArr[i][j-1] == element){ // checking left
+                    boardArr[i][j-1] = ' ';
+                }
+                if(boardArr[i+1][j] == element){ // checking down
+                    boardArr[i+1][j] = ' ';
+                }
+                boardArr[i][j] = ' '; // setting that element
+            }
+        }
+
+        bool CompletionCheck(){
+            for (int i = 0; i < BoardRows; ++i) {
+                for (int j = 0; j < BoardColumns; ++j) {
+                    if(boardArr[i][j] != ' ' && boardArr[i][j] != '.'){
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     
         // Utility member function declarations.  
@@ -126,9 +270,11 @@ class Board
         int boardNumber;
         char boardArr[8][10];
         int parValue;
+        vector <char> charsInBoard;
 
         //private functions go here.
         char ChangeNumToChar(int val);
+        int RegularSearch(char c, vector<char> charInBoard);
 
 
 };  // end class Board
@@ -149,14 +295,33 @@ Board::Board(){
 Board::Board(int boardNumber, int allBoardArr[], int parValue){
     this->boardNumber = boardNumber;
     this->parValue = parValue;
+    charsInBoard.clear(); // starting with a clean vector;
     //deciphering elements from a 1d array to a 2d array.
     for(int i = 0; i < BoardRows; i++){
         for (int j = 0; j < BoardColumns; j++){
             char c = ChangeNumToChar(allBoardArr[i*BoardColumns + j]);
             this->boardArr[i][j] = c;
+
+            if(c != ' ' && c != '.'){ // making a vector of special characters i.e game pieces on the game board.
+                if(this->RegularSearch(c, charsInBoard) == -1){
+                    charsInBoard.push_back(c);
+                }
+            }
         }
     }
+//    for (int k = 0; k < charsInBoard.size() ; ++k) {
+//        cout << charsInBoard.at(k);
+//    }
 } // Board::Board(int boardNumber... ends here.
+
+int Board::RegularSearch(char c, vector<char> charInBoard){
+    for (int i = 0; i < charInBoard.size(); ++i) {
+        if(charInBoard.at(i) == c){
+            return i;
+        }
+    }
+    return -1;
+}
 
 // printing the board() ------------------------------------------------------------------------------------------
 void Board::DisplayBoard(){
@@ -322,9 +487,20 @@ void displayDirections()
 }
 
 
+int makeMove(Board &theBoard, int rowInput, int columnInput, char direction){
+    //checking move validity
+    if(direction == 'R' || direction == 'L'){
+        return theBoard.checkArray(rowInput, columnInput, direction); // will return -1 if error was thrown.
+    }
+    else{
+        cout << "Invalid move direction.  Please retry." << endl;
+        return -1; // since wrong input.
+    }
 
-//------------------------------------------------------------------------------------------------------------------
-// Driver for the program, using the classes and functions declared above
+
+}
+
+
 int main()
 {
     AllBoards allTheBoards;     // Reads in and stores all the boards from a data file
@@ -332,35 +508,78 @@ int main()
     Board theBoard;             // The board instance, that is set to hold the values for each level
     int score = 0;              // Score accumulates par points for each level finished
     int stepCount =1;
-    char userInput;
     displayDirections();
 
-    while(true){
-        theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
-        theBoard.DisplayBoard();
+    char input1;
+    char input3;
 
-        cout << stepCount <<". Your move: ";
-        cin >> userInput;
-        char upperInput = toupper(userInput);
-        if( upperInput == 'X'){ // exiting the game.
+    int startInputIndex = 0;
+
+    theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
+    theBoard.DisplayBoard();
+
+    while(true){
+
+        cout << stepCount << ". Your move: ";
+
+        cin >> input1;
+        input1 = toupper(input1);
+
+        if( input1 == 'X'){ // exiting the game.
             break;
         }
-        else if(upperInput == 'R'){ // resitting the level
+        else if(input1 == 'R'){ // resitting the level
             stepCount = 1;
-            continue;
+            theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
+            theBoard.DisplayBoard();
         }
-        else if(upperInput == 'S'){
-            cin >> currentBoardIndex;
-            continue;
+        else if(input1 == 'S'){
+            cin >> currentBoardIndex ;
+            theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
+            theBoard.DisplayBoard();
         }
         else{
+            if(input1 >= 'A' && input1 <= 'H' ){ // row input is in range.
+
+                int columnInput;
+                cin >> columnInput;
+                int rowInput = input1 - 'A';
+
+                if(columnInput >= 0 && columnInput <=9 ){ // column input is in range
+
+                    cin >> input3;
+                    input3 = toupper(input3);
+
+                    int response = makeMove( theBoard, rowInput, columnInput , input3);
+
+                    if(response != -1){ // if the move was valid and changes were made to theBoard.
+                        stepCount++;
+                    }
+
+                }
+                else{
+                    cout <<  "Move value is out of bounds.  Please retry."<< endl;
+                }
+            }
+            else{
+                cout <<  "Move value is out of bounds.  Please retry."<< endl;
+            }
 
         }
 
+        if(theBoard.CompletionCheck()){
+            score = score + theBoard.GetPar();
+            cout<< "Congratulations!  On to the next level."<< endl;
+            cout<< "Score: " << score << endl << endl;
+            currentBoardIndex++;
+            stepCount = 1;
+            theBoard = allTheBoards.getBoard( currentBoardIndex); //loading the next level.
+            theBoard.DisplayBoard();
+        }
     }
 
 
 
-        
+
     return 0;
 }
