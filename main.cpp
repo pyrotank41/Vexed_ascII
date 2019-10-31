@@ -4,96 +4,16 @@
 //     board is clear, play advances to the next level.
 //     
 //  Prog 4: Vexed
-//  Author: Dale Reed
+//  Author: Karan Singh Kochar
 //  Using Codio, for UIC CS 141, Fall 2019
-//
-//  Running the program looks like:
-/*
-		Welcome to Vexed!
-		The objective is to place identical pieces next to each other, so that they vanish,
-		clearing the board completely within the indicated number of moves. On each move
-		enter the row, column, and direction (L or R) to move, in either upper or lower
-		case. You may also enter 'x' to exit the program, or 'r' to reset the current level.
+// ------------------------------------
 
-
-			Board 0 par 4
-			  0 1 2 3 4 5 6 7 8 9
-			-----------------------
-		  A | . . . . . . . . . . | A
-		  B | . . . . . . . . . . | B
-		  C | . . . @ &     . . . | C
-		  D | . . . . .     . . . | D
-		  E | . . .         . . . | E
-		  F | . . . &     @ . . . | F
-		  G | . . . . & @ . . . . | G
-		  H | . . . . . . . . . . | H
-			-----------------------
-			  0 1 2 3 4 5 6 7 8 9
-		1. Your move: c4r
-
-			Board 0 par 4
-			  0 1 2 3 4 5 6 7 8 9
-			-----------------------
-		  A | . . . . . . . . . . | A
-		  B | . . . . . . . . . . | B
-		  C | . . . @   &   . . . | C
-		  D | . . . . .     . . . | D
-		  E | . . .         . . . | E
-		  F | . . . &     @ . . . | F
-		  G | . . . . & @ . . . . | G
-		  H | . . . . . . . . . . | H
-			-----------------------
-			  0 1 2 3 4 5 6 7 8 9
-
-			Board 0 par 4
-			  0 1 2 3 4 5 6 7 8 9
-			-----------------------
-		  A | . . . . . . . . . . | A
-		  B | . . . . . . . . . . | B
-		  C | . . . @       . . . | C
-		  D | . . . . . &   . . . | D
-		  E | . . .         . . . | E
-		  F | . . . &     @ . . . | F
-		  G | . . . . & @ . . . . | G
-		  H | . . . . . . . . . . | H
-			-----------------------
-			  0 1 2 3 4 5 6 7 8 9
-
-			Board 0 par 4
-			  0 1 2 3 4 5 6 7 8 9
-			-----------------------
-		  A | . . . . . . . . . . | A
-		  B | . . . . . . . . . . | B
-		  C | . . . @       . . . | C
-		  D | . . . . .     . . . | D
-		  E | . . .     &   . . . | E
-		  F | . . . &     @ . . . | F
-		  G | . . . . & @ . . . . | G
-		  H | . . . . . . . . . . | H
-			-----------------------
-			  0 1 2 3 4 5 6 7 8 9
-
-			Board 0 par 4
-			  0 1 2 3 4 5 6 7 8 9
-			-----------------------
-		  A | . . . . . . . . . . | A
-		  B | . . . . . . . . . . | B
-		  C | . . . @       . . . | C
-		  D | . . . . .     . . . | D
-		  E | . . .         . . . | E
-		  F | . . . &   & @ . . . | F
-		  G | . . . . & @ . . . . | G
-		  H | . . . . . . . . . . | H
-			-----------------------
-			  0 1 2 3 4 5 6 7 8 9
-		2. Your move:
-
- */
 #include <iostream>   // For cin, cout
 #include <fstream>    // For file input
 #include <vector>     // to use vector
 #include <chrono>     // Used in pausing for some milliseconds using sleep_for(...)
 #include <thread>     // Used in pausing for some milliseconds using sleep_for(...)
+
 using namespace std;
 
 // Global constants
@@ -103,7 +23,7 @@ const int BoardColumns = 10;
 const int NumberOfPresetBoardParValues = 60;    // After the first 60 par values, the default par value is 15
 const char FileName[] = "boards.txt";
 const int SleepAmount = 150;                    // Length of time to pause, in milliseconds
-const char players[] = {'&', '@', '+', '%', '^', '#', '=', '*'};
+const char players[] = {'&', '@', '+', '%', '^', '#', '=', '*'};  //char represented as a player in our game
 
 //------------------------------------------------------------------------------------------------------------------
 // Class used to store a game board
@@ -111,170 +31,33 @@ class Board
 {
     public:
         // Constructor declarations  
-        Board();
-        Board( int boardNumber, int allBoardArr[], int parValue);
+        Board(); // default Constructor
+        Board( int boardNumber, int allBoardArr[], int parValue); // overloaded constructor
 
         // Get and Set member functions, corresponding to the private data members
-        int GetPar(){
+        int GetPar(){  // getter for Par value for board.
             return parValue;
         }
 
-        int checkArray(int rowInput, int columnInput, char direction){
-            char temp = boardArr[rowInput][columnInput];
-            if( temp == '.' || temp == ' '){
-                cout << "Attempting to move an invalid character.  Please retry." << endl;
-                return -1; //since error
-            }
-            else {
-                if( boardArr[rowInput][columnInput+1] == ' ' && direction == 'R'){
-                    boardArr[rowInput][columnInput+1] = boardArr[rowInput][columnInput];
-                    boardArr[rowInput][columnInput] = ' ';
-                    this-> DisplayBoard();
-                    this->doSomething();
-                }
-                else if( boardArr[rowInput][columnInput-1] == ' ' && direction == 'L' ){
-                    boardArr[rowInput][columnInput-1] = boardArr[rowInput][columnInput];
-                    boardArr[rowInput][columnInput] = ' ';
-                    this-> DisplayBoard();
-                    this->doSomething();
-                }
-                else{
-                    cout << "Attempting to move into a non-empty space.  Please retry." << endl;
-                    return -1; // since error
-                }
-
-            }
-            return 0; // valid input hence 0.
-
-        }
-        void doSomething(){
-
-
-            GravityEffect(); // if any elements are floating then use gravity to bring them down.
-
-            for (int i = 0; i < sizeof(players); ++i) { // iterating through all the game pieces and checking if any could be eliminated.
-                int sudoIndex = this->MagicIndex(players[i]); //returns sudo index. (i am not considering the case where there are multiple instances of max values)
-                if(sudoIndex != 0) {
-                    this->Vanish(sudoIndex);
-                    this-> DisplayBoard();
-                    doSomething();
-                }
-            }
-        }
-
-        void GravityEffect(){
-            while(GravityRequired()){
-                for (int i = 0; i < BoardRows; ++i) {
-                    for (int j = 0; j < BoardColumns; ++j) {
-                        char element = boardArr[i][j];
-                        if( element != '.' && element != ' '){
-                            if(boardArr[i+1][j] == ' '){
-                                boardArr[i+1][j] = element;
-                                boardArr[i][j] = ' ';
-                                this-> DisplayBoard();
-
-                            }
-                        }
-                    }
-                }
-            }
-
-        }// GravityEffect() ends here.
-
-        bool GravityRequired(){
-            for (int i = 0; i < BoardRows; ++i) {
-                for (int j = 0; j < BoardColumns; ++j) {
-                    char element = boardArr[i][j];
-                    if( element != '.' && element != ' '){
-                        if(boardArr[i+1][j] == ' '){
-                           return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        int MagicIndex(char c){
-            int temp[BoardRows][BoardColumns];
-            for (int i = 0; i < BoardRows; i++){ // initializing temp 2d array
-                for (int j = 0; j < BoardColumns; j++) {
-                    temp[i][j] = 0;
-                }
-            }
-
-            for (int i = 0; i < BoardRows; ++i) { // iterating through boardArr to ind the character occurrences.
-                for (int j = 0; j < BoardColumns; ++j) {
-                    if(boardArr[i][j] == c){
-                        int count = 0;
-                        if(boardArr[i+1][j] == c){ count++; }
-                        if(boardArr[i-1][j] == c){ count++; }
-                        if(boardArr[i][j+1] == c){ count++; }
-                        if(boardArr[i][j-1] == c){ count++; }
-                        temp[i][j] = count;
-                    }
-                }
-            }
-            int highestIndexValue = 0;
-            int rowIndex= 0, columnIndex= 0;
-            for (int i = 0; i < BoardRows ; ++i) {
-                for (int j = 0; j <  BoardColumns; ++j) {
-                    if(temp[i][j] > highestIndexValue){
-                        highestIndexValue = temp[i][j];
-                        rowIndex = i;
-                        columnIndex = j;
-                    }
-
-                }
-
-            }
-            return 10*rowIndex+columnIndex;
-
-        }
-
-        void Vanish(int sudoIndex){
-            int i = sudoIndex/ 10;
-            int j = sudoIndex% 10;
-            char element = boardArr[i][j];
-           // cout << endl << element << "-------------------" <<endl;
-            if(boardArr[i][j+1] == element || boardArr[i][j-1] == element || boardArr[i+1][j] == element){
-                if(boardArr[i][j+1] == element){ // checking right
-                    boardArr[i][j+1] = ' ';
-                }
-                if(boardArr[i][j-1] == element){ // checking left
-                    boardArr[i][j-1] = ' ';
-                }
-                if(boardArr[i+1][j] == element){ // checking down
-                    boardArr[i+1][j] = ' ';
-                }
-                boardArr[i][j] = ' '; // setting that element
-            }
-        }
-
-        bool CompletionCheck(){
-            for (int i = 0; i < BoardRows; ++i) {
-                for (int j = 0; j < BoardColumns; ++j) {
-                    if(boardArr[i][j] != ' ' && boardArr[i][j] != '.'){
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-    
         // Utility member function declarations.  
         void DisplayBoard();
+        int  checkArray(int rowInput, int columnInput, char direction); // checks the array for the move direction and moves if valid move
+        void doSomething(); // this functions checks if
+        void GravityEffect();
+        bool GravityRequired();
+        int  MagicIndex(char c);
+        void Vanish(int sudoIndex);
+        bool CompletionCheck();
 
     private:
         // The private data members go here
-        int boardNumber;
-        char boardArr[8][10];
-        int parValue;
+        int boardNumber; //Board level
+        char boardArr[8][10]; // 2D Board Array
+        int parValue; // Par value for each board.
         vector <char> charsInBoard;
 
         //private functions go here.
         char ChangeNumToChar(int val);
-        int RegularSearch(char c, vector<char> charInBoard);
 
 
 };  // end class Board
@@ -291,7 +74,8 @@ Board::Board(){
     }
 } //Board::Board() ends here.
 
-// Overloaded Constructor for Board class -------------------------------------------------------------------------
+// Board(game level, 1D board, par value) -------------------------------------------------------------------------
+// Overloaded Constructor for Board class
 Board::Board(int boardNumber, int allBoardArr[], int parValue){
     this->boardNumber = boardNumber;
     this->parValue = parValue;
@@ -299,35 +83,185 @@ Board::Board(int boardNumber, int allBoardArr[], int parValue){
     //deciphering elements from a 1d array to a 2d array.
     for(int i = 0; i < BoardRows; i++){
         for (int j = 0; j < BoardColumns; j++){
-            char c = ChangeNumToChar(allBoardArr[i*BoardColumns + j]);
-            this->boardArr[i][j] = c;
+            char c = ChangeNumToChar(allBoardArr[i*BoardColumns + j]); // Converting int to designated char;
+            this->boardArr[i][j] = c; // Mapping 1d array to the 2d board array
+        }
+    }
 
-            if(c != ' ' && c != '.'){ // making a vector of special characters i.e game pieces on the game board.
-                if(this->RegularSearch(c, charsInBoard) == -1){
-                    charsInBoard.push_back(c);
+} // Board::Board(int boardNumber... ends here.
+
+// checkArray(current row index, current column input, move direction) ----------------------------------------------
+int Board::checkArray(int rowInput, int columnInput, char direction){
+    char temp = boardArr[rowInput][columnInput];
+    if( temp == '.' || temp == ' '){
+        cout << "Attempting to move an invalid character.  Please retry." << endl;
+        return -1; //since error
+    }
+    else {
+        if( boardArr[rowInput][columnInput+1] == ' ' && direction == 'R'){
+            boardArr[rowInput][columnInput+1] = boardArr[rowInput][columnInput];
+            boardArr[rowInput][columnInput] = ' ';
+            this-> DisplayBoard();
+            this->doSomething();
+        }
+        else if( boardArr[rowInput][columnInput-1] == ' ' && direction == 'L' ){
+            boardArr[rowInput][columnInput-1] = boardArr[rowInput][columnInput];
+            boardArr[rowInput][columnInput] = ' ';
+            this-> DisplayBoard();
+            this->doSomething();
+        }
+        else{
+            cout << "Attempting to move into a non-empty space.  Please retry." << endl;
+            return -1; // since error
+        }
+
+    }
+    return 0; // valid input hence 0.
+
+} // Board::checkArray ends here.
+
+// doSomething()  ---------------------------------------------------------------------------------------------------
+void Board::doSomething(){ // just a function to bring all the following functions together.
+
+    GravityEffect(); // if any elements are floating then use gravity to bring them down.
+
+    for (int i = 0; i < sizeof(players); ++i) { // iterating through all the game pieces and checking if any could be eliminated.
+        int sudoIndex = this->MagicIndex(players[i]); //returns sudo index. (i am not considering the case where there are multiple instances of max values)
+        if(sudoIndex != 0) {
+            this->Vanish(sudoIndex); // get rid of the peaces that has to go.
+            this-> DisplayBoard(); //display board.
+            doSomething();
+        }
+    }
+}// doSomething() ends here.
+
+
+// gravityRequired() --------------------------------------------------------------------------------------------------
+// checks if any character is floating in the air. i.e. has an empty space below the character
+bool Board::GravityRequired(){
+    for (int i = 0; i < BoardRows; ++i) {
+        for (int j = 0; j < BoardColumns; ++j) {
+            char element = boardArr[i][j];
+            if( element != '.' && element != ' '){
+                if(boardArr[i+1][j] == ' '){
+                    return true;
                 }
+            }
+        } //for int j....
+    } // for int i...
+    return false;
+}// GravityRequired() ends here.
+
+// GravityEffect() -----------------------------------------------------------------------------------------------------
+// brings all the elements floating in the air down, i.e. makes sure that no element has space beneath.
+void Board::GravityEffect(){
+
+    int flag = 1; //need to use a flg so that i can get out of for loops back into the while loop
+    while(GravityRequired()){
+
+        for (int i = BoardRows-1; i >= 0; --i) {
+            if(flag){ // required to exit out of the for loop to prevent multiple elements to fall down.
+                for (int j = BoardColumns-1; j >= 0; --j) { // scans from the bottom to pull bottom most element down 1st
+                    char element = boardArr[i][j];
+                    if( element != '.' && element != ' '){ // making sure it a player char
+                        if(boardArr[i+1][j] == ' '){
+                            // changing player position
+                            boardArr[i+1][j] = element;
+                            boardArr[i][j] = ' ';
+                            this-> DisplayBoard();
+                            flag = 0;
+                            break;
+                        }
+                    }
+                }// int for j...
+            } // if(flag)...
+            else{
+                flag = 1;
+                break;
+            }
+
+        } // for int i...
+    } // while(gravityExists)...
+
+}// GravityEffect() ends here.
+
+// MagicIndex(player char) ----------------------------------------------------------------------------------------------------
+// function takes player char and check its similar neighbour's ocurance with respect of its position through the board
+// it returns integer with row and column encoded
+int Board::MagicIndex(char c){
+    int temp[BoardRows][BoardColumns]; // just a temporary 2d array
+    for (int i = 0; i < BoardRows; i++){ // initializing temp 2d array
+        for (int j = 0; j < BoardColumns; j++) {
+            temp[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < BoardRows; ++i) { // iterating through boardArr to add weights to character occurrences.
+        for (int j = 0; j < BoardColumns; ++j) {
+            if(boardArr[i][j] == c){
+                int count = 0;
+                if(boardArr[i+1][j] == c){ count++; }
+                if(boardArr[i-1][j] == c){ count++; }
+                if(boardArr[i][j+1] == c){ count++; }
+                if(boardArr[i][j-1] == c){ count++; }
+                temp[i][j] = count;
             }
         }
     }
-//    for (int k = 0; k < charsInBoard.size() ; ++k) {
-//        cout << charsInBoard.at(k);
-//    }
-} // Board::Board(int boardNumber... ends here.
+    // self explanatory integers
+    int highestIndexValue = 0;
+    int rowIndex= 0, columnIndex= 0;
 
-int Board::RegularSearch(char c, vector<char> charInBoard){
-    for (int i = 0; i < charInBoard.size(); ++i) {
-        if(charInBoard.at(i) == c){
-            return i;
+    for (int i = 0; i < BoardRows ; ++i) { // finding highest weights in the board
+        for (int j = 0; j <  BoardColumns; ++j) {
+            if(temp[i][j] > highestIndexValue){
+                highestIndexValue = temp[i][j];
+                rowIndex = i;
+                columnIndex = j;
+            }
+
+        }
+
+    }
+    return 10*rowIndex+columnIndex; // encoded row and column
+
+}
+Vanish
+void Board::Vanish(int sudoIndex){
+    int i = sudoIndex/ 10;
+    int j = sudoIndex% 10;
+    char element = boardArr[i][j];
+
+    if(boardArr[i][j+1] == element || boardArr[i][j-1] == element || boardArr[i+1][j] == element){
+        if(boardArr[i][j+1] == element){ // checking right
+            boardArr[i][j+1] = ' ';
+        }
+        if(boardArr[i][j-1] == element){ // checking left
+            boardArr[i][j-1] = ' ';
+        }
+        if(boardArr[i+1][j] == element){ // checking down
+            boardArr[i+1][j] = ' ';
+        }
+        boardArr[i][j] = ' '; // setting that element
+    }
+}
+
+bool Board::CompletionCheck(){
+    for (int i = 0; i < BoardRows; ++i) {
+        for (int j = 0; j < BoardColumns; ++j) {
+            if(boardArr[i][j] != ' ' && boardArr[i][j] != '.'){
+                return false;
+            }
         }
     }
-    return -1;
+    return true;
 }
 
 // printing the board() ------------------------------------------------------------------------------------------
 void Board::DisplayBoard(){
     char rowChar = 'A';
 
-    cout << "    Board " << boardNumber << " with par " << parValue <<" is: " << endl;
+    cout << "    Board " << boardNumber << " par " << parValue << endl;
     cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
     cout << "    -----------------------" << endl;
 
@@ -341,6 +275,8 @@ void Board::DisplayBoard(){
     }
     cout << "    -----------------------" << endl;
     cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
+    this_thread::sleep_for(chrono::milliseconds(SleepAmount));
+
 } //Board::DisplayBoard() ends here.
 
 // To convert integer value to the desired char--------------------------------------------------------------------
@@ -401,7 +337,8 @@ class AllBoards
         int par = 0;             // The number of moves it should take to solve this level
         int currentLevel = -1;   // Which board we're on
         int allBoards[ 118][ BoardRows * BoardColumns];   // Array to store all 118 8x10 boards
-    
+
+
         // Par values for levels 0 through 59.  Default is 15 after that.
         const int levelParValues[ NumberOfPresetBoardParValues] =
             // 0   1   2   3   4   5   6   7   8   9
@@ -428,26 +365,6 @@ AllBoards::AllBoards()
         exit( -1);
     }
 
-    // Read the five lines of comments at the top of the datafile.  Datafile structure is:
-    //    // Originally from Vexed v2.0 - globals.c "Global variable declarations"
-    //    // Copyright (C) 1999 James McCombe (cybertube@earthling.net)
-    //    // September 1,2001 - Version 2.0 changes by Mark Ingebretson (ingebret@yahoo.com) and others.
-    //    // Oct 13, 2019  Format changed by Dale Reed (reed @ uic.edu)
-    //    // Covered by the GNU General Public License https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
-    //    // Level 000
-    //    9 9 9 9 9 9 9 9 9 9
-    //    9 9 9 9 9 9 9 9 9 9
-    //    9 9 9 2 1 0 0 9 9 9
-    //    9 9 9 9 9 0 0 9 9 9
-    //    9 9 9 0 0 0 0 9 9 9
-    //    9 9 9 1 0 0 2 9 9 9
-    //    9 9 9 9 1 2 9 9 9 9
-    //    9 9 9 9 9 9 9 9 9 9
-    //    // Level 001
-    //    9 9 9 9 9 9 9 9 9 9
-    //    9 9 9 9 9 9 9 9 9 9
-    // ...
-    
     // Read and discard the five lines of comments at the beginning of the file.
     string inputLine;
     for( int i=0; i<5; i++) {
@@ -526,6 +443,7 @@ int main()
         input1 = toupper(input1);
 
         if( input1 == 'X'){ // exiting the game.
+
             break;
         }
         else if(input1 == 'R'){ // resitting the level
@@ -535,23 +453,23 @@ int main()
         }
         else if(input1 == 'S'){
             cin >> currentBoardIndex ;
+            //currentBoardIndex = columnInput;
             theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
             theBoard.DisplayBoard();
         }
         else{
+            int columnInput;
+            cin >> columnInput;
+
             if(input1 >= 'A' && input1 <= 'H' ){ // row input is in range.
 
-                int columnInput;
-                cin >> columnInput;
+
                 int rowInput = input1 - 'A';
 
                 if(columnInput >= 0 && columnInput <=9 ){ // column input is in range
-
                     cin >> input3;
                     input3 = toupper(input3);
-
                     int response = makeMove( theBoard, rowInput, columnInput , input3);
-
                     if(response != -1){ // if the move was valid and changes were made to theBoard.
                         stepCount++;
                     }
@@ -568,18 +486,23 @@ int main()
         }
 
         if(theBoard.CompletionCheck()){
-            score = score + theBoard.GetPar();
-            cout<< "Congratulations!  On to the next level."<< endl;
-            cout<< "Score: " << score << endl << endl;
-            currentBoardIndex++;
-            stepCount = 1;
+
+            if(--stepCount != theBoard.GetPar()){ // --stepCount: as it incremented everytime there is no error, since this is an error, had to decrement it.
+                cout << "Sorry, you took "<< stepCount << " moves and you must finish within " << theBoard.GetPar()<<" moves before moving on." << endl;
+                stepCount = 1;
+            }
+            else{
+                score = score + theBoard.GetPar();
+                cout<< "Congratulations!  On to the next level."<< endl;
+                cout<< "Score: " << score << endl << endl;
+                currentBoardIndex++;
+                stepCount = 1;
+            }
+
             theBoard = allTheBoards.getBoard( currentBoardIndex); //loading the next level.
             theBoard.DisplayBoard();
         }
     }
-
-
-
 
     return 0;
 }
