@@ -29,35 +29,35 @@ const char players[] = {'&', '@', '+', '%', '^', '#', '=', '*'};  //char represe
 // Class used to store a game board
 class Board
 {
-    public:
-        // Constructor declarations  
-        Board(); // default Constructor
-        Board( int boardNumber, int allBoardArr[], int parValue); // overloaded constructor
+public:
+    // Constructor declarations
+    Board(); // default Constructor
+    Board( int boardNumber, int allBoardArr[], int parValue); // overloaded constructor
 
-        // Get and Set member functions, corresponding to the private data members
-        int GetPar(){  // getter for Par value for board.
-            return parValue;
-        }
+    // Get and Set member functions, corresponding to the private data members
+    int getPar(){  // getter for Par value for board.
+        return parValue;
+    }
 
-        // Utility member function declarations.  
-        void DisplayBoard();
-        int  checkArray(int rowInput, int columnInput, char direction); // checks the array for the move direction and moves if valid move
-        void doSomething(); // this functions checks if
-        void GravityEffect();
-        bool GravityRequired();
-        int  MagicIndex(char c);
-        void Vanish(int sudoIndex);
-        bool CompletionCheck();
+    // Utility member function declarations.
+    void DisplayBoard();
+    int  checkArray(int rowInput, int columnInput, char direction); // checks the array for the move direction and moves if valid move
+    void doSomething();
+    void gravityEffect();
+    bool gravityRequired();
+    int  magicIndex(char c);
+    void Vanish(int sudoIndex);
+    bool completionCheck();
 
-    private:
-        // The private data members go here
-        int boardNumber; //Board level
-        char boardArr[8][10]; // 2D Board Array
-        int parValue; // Par value for each board.
-        vector <char> charsInBoard;
+private:
+    // The private data members go here
+    int boardNumber; //Board level
+    char boardArr[8][10]; // 2D Board Array
+    int parValue; // Par value for each board.
+    vector <char> charsInBoard;
 
-        //private functions go here.
-        char ChangeNumToChar(int val);
+    //private functions go here.
+    char ChangeNumToChar(int val);
 
 
 };  // end class Board
@@ -123,10 +123,10 @@ int Board::checkArray(int rowInput, int columnInput, char direction){
 // doSomething()  ---------------------------------------------------------------------------------------------------
 void Board::doSomething(){ // just a function to bring all the following functions together.
 
-    GravityEffect(); // if any elements are floating then use gravity to bring them down.
+    gravityEffect(); // if any elements are floating then use gravity to bring them down.
 
     for (int i = 0; i < sizeof(players); ++i) { // iterating through all the game pieces and checking if any could be eliminated.
-        int sudoIndex = this->MagicIndex(players[i]); //returns sudo index. (i am not considering the case where there are multiple instances of max values)
+        int sudoIndex = this->magicIndex(players[i]); //returns sudo index. (i am not considering the case where there are multiple instances of max values)
         if(sudoIndex != 0) {
             this->Vanish(sudoIndex); // get rid of the peaces that has to go.
             this-> DisplayBoard(); //display board.
@@ -138,7 +138,7 @@ void Board::doSomething(){ // just a function to bring all the following functio
 
 // gravityRequired() --------------------------------------------------------------------------------------------------
 // checks if any character is floating in the air. i.e. has an empty space below the character
-bool Board::GravityRequired(){
+bool Board::gravityRequired(){
     for (int i = 0; i < BoardRows; ++i) {
         for (int j = 0; j < BoardColumns; ++j) {
             char element = boardArr[i][j];
@@ -150,14 +150,14 @@ bool Board::GravityRequired(){
         } //for int j....
     } // for int i...
     return false;
-}// GravityRequired() ends here.
+}// gravityRequired() ends here.
 
-// GravityEffect() -----------------------------------------------------------------------------------------------------
+// gravityEffect() -----------------------------------------------------------------------------------------------------
 // brings all the elements floating in the air down, i.e. makes sure that no element has space beneath.
-void Board::GravityEffect(){
+void Board::gravityEffect(){
 
     int flag = 1; //need to use a flg so that i can get out of for loops back into the while loop
-    while(GravityRequired()){
+    while(gravityRequired()){
 
         for (int i = BoardRows-1; i >= 0; --i) {
             if(flag){ // required to exit out of the for loop to prevent multiple elements to fall down.
@@ -183,12 +183,12 @@ void Board::GravityEffect(){
         } // for int i...
     } // while(gravityExists)...
 
-}// GravityEffect() ends here.
+}// gravityEffect() ends here.
 
-// MagicIndex(player char) ----------------------------------------------------------------------------------------------------
+// magicIndex(player char) ----------------------------------------------------------------------------------------------------
 // function takes player char and check its similar neighbour's ocurance with respect of its position through the board
 // it returns integer with row and column encoded
-int Board::MagicIndex(char c){
+int Board::magicIndex(char c){
     int temp[BoardRows][BoardColumns]; // just a temporary 2d array
     for (int i = 0; i < BoardRows; i++){ // initializing temp 2d array
         for (int j = 0; j < BoardColumns; j++) {
@@ -226,7 +226,7 @@ int Board::MagicIndex(char c){
     return 10*rowIndex+columnIndex; // encoded row and column
 
 }
-Vanish
+// vanish (index to delete)------------------------------------------------------------------------------------
 void Board::Vanish(int sudoIndex){
     int i = sudoIndex/ 10;
     int j = sudoIndex% 10;
@@ -244,9 +244,10 @@ void Board::Vanish(int sudoIndex){
         }
         boardArr[i][j] = ' '; // setting that element
     }
-}
+}//vanish ends here.
 
-bool Board::CompletionCheck(){
+// CompletionCheck() ------------------------------------------------------------------------------------------
+bool Board::completionCheck(){
     for (int i = 0; i < BoardRows; ++i) {
         for (int j = 0; j < BoardColumns; ++j) {
             if(boardArr[i][j] != ' ' && boardArr[i][j] != '.'){
@@ -255,7 +256,7 @@ bool Board::CompletionCheck(){
         }
     }
     return true;
-}
+}//completionCheck ends here.
 
 // printing the board() ------------------------------------------------------------------------------------------
 void Board::DisplayBoard(){
@@ -265,7 +266,7 @@ void Board::DisplayBoard(){
     cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
     cout << "    -----------------------" << endl;
 
-    for(int i = 0; i < BoardRows; i++) {
+    for(int i = 0; i < BoardRows; i++) { // just a simple itteratrion
         cout << "  "<< rowChar << " | ";
         for (int j = 0; j < BoardColumns; j++) {
             cout << boardArr[i][j] << " ";
@@ -275,7 +276,7 @@ void Board::DisplayBoard(){
     }
     cout << "    -----------------------" << endl;
     cout << "      0 1 2 3 4 5 6 7 8 9  " << endl;
-    this_thread::sleep_for(chrono::milliseconds(SleepAmount));
+    this_thread::sleep_for(chrono::milliseconds(SleepAmount)); // delay while displaying
 
 } //Board::DisplayBoard() ends here.
 
@@ -300,61 +301,61 @@ char Board::ChangeNumToChar(int val){
 // Class used to read in and store all game boards
 class AllBoards
 {
-    public:
-        //-----------------------------------------------------------------------------------------------------------
-        // Constructor that reads in data from the data file.
-        AllBoards();    // Declaration.  See the definition outside the class, below.
-    
-        // Get and Set member functions.
-    
-        //------------------------------------------------------------------------------------------------------------------
-        // Find and return a particular board.
-        Board getBoard( int boardIndex)
-        {
-            // Validate board index number
-            if( boardIndex < 0 || boardIndex > MaxNumberOfBoards) {
-                cout << "In getBoard() inside AllBoards class, boardIndex "
-                     << boardIndex << " is out of range. Exiting..." << endl;
-                exit( -1);
-            }
+public:
+    //-----------------------------------------------------------------------------------------------------------
+    // Constructor that reads in data from the data file.
+    AllBoards();    // Declaration.  See the definition outside the class, below.
 
-            // Construct a Board from one of all the boards
-            Board newBoard( boardIndex, allBoards[ boardIndex], levelParValues[ boardIndex]);
-            return newBoard;
+    // Get and Set member functions.
+
+    //------------------------------------------------------------------------------------------------------------------
+    // Find and return a particular board.
+    Board getBoard( int boardIndex)
+    {
+        // Validate board index number
+        if( boardIndex < 0 || boardIndex > MaxNumberOfBoards) {
+            cout << "In getBoard() inside AllBoards class, boardIndex "
+                 << boardIndex << " is out of range. Exiting..." << endl;
+            exit( -1);
         }
-    
-        //------------------------------------------------------------------------------------------------------------------
-        // Retrieve the par value
-        int getParValue( int boardIndex) {
-            int theParValue = 15;   // default
-            if( boardIndex < NumberOfPresetBoardParValues) {
-                theParValue = levelParValues[ boardIndex];
-            }
-            return theParValue;
-        } // end getParValue()
-    
-    private:
-        int par = 0;             // The number of moves it should take to solve this level
-        int currentLevel = -1;   // Which board we're on
-        int allBoards[ 118][ BoardRows * BoardColumns];   // Array to store all 118 8x10 boards
+
+        // Construct a Board from one of all the boards
+        Board newBoard( boardIndex, allBoards[ boardIndex], levelParValues[ boardIndex]);
+        return newBoard;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    // Retrieve the par value
+    int getParValue( int boardIndex) {
+        int theParValue = 15;   // default
+        if( boardIndex < NumberOfPresetBoardParValues) {
+            theParValue = levelParValues[ boardIndex];
+        }
+        return theParValue;
+    } // end getParValue()
+
+private:
+    int par = 0;             // The number of moves it should take to solve this level
+    int currentLevel = -1;   // Which board we're on
+    int allBoards[ 118][ BoardRows * BoardColumns];   // Array to store all 118 8x10 boards
 
 
-        // Par values for levels 0 through 59.  Default is 15 after that.
-        const int levelParValues[ NumberOfPresetBoardParValues] =
+    // Par values for levels 0 through 59.  Default is 15 after that.
+    const int levelParValues[ NumberOfPresetBoardParValues] =
             // 0   1   2   3   4   5   6   7   8   9
             { 4,  3, 14,  5,  6,  4,  4, 14,  5, 25,  //  0 -  9
-             12, 17, 17,  8,  4, 12,  9,  8, 12,  8,  // 10 - 19
-             10, 10, 16, 13, 20, 14, 10,  9, 12, 14,  // 20 - 29
-             15, 13, 20,  8, 15, 10, 10, 11,  7, 23,  // 30 - 39
+              12, 17, 17,  8,  4, 12,  9,  8, 12,  8,  // 10 - 19
+              10, 10, 16, 13, 20, 14, 10,  9, 12, 14,  // 20 - 29
+              15, 13, 20,  8, 15, 10, 10, 11,  7, 23,  // 30 - 39
               8, 11, 16, 14, 12, 13, 13,  3, 35, 18,  // 40 - 49
-             26, 10, 13, 18, 26, 12, 15,  5, 22, 15}; // 50 - 59
+              26, 10, 13, 18, 26, 12, 15,  5, 22, 15}; // 50 - 59
 }; //end class allBoards
 
 
 //------------------------------------------------------------------------------------------------------------------
 // AllBoards constructor
 AllBoards::AllBoards()
- {
+{
     // Read in all the boards from the data file
     ifstream inputFileStream;  // declare the input file stream
 
@@ -370,12 +371,12 @@ AllBoards::AllBoards()
     for( int i=0; i<5; i++) {
         getline(inputFileStream, inputLine);
     }
-    
+
     // Now read each of the 118 (MaxNumberOfBoards) boards.  Each one starts with a comment that has the board number.
     for( int boardIndex = 0; boardIndex < MaxNumberOfBoards; boardIndex++) {
         // Read the comment with the board number
         getline(inputFileStream, inputLine);
-        
+
         // For each board now read the BoardRows * BoardColumns number of board values, as integers
         for( int row=0; row<BoardRows; row++) {
             for( int col=0; col<BoardColumns; col++) {
@@ -485,14 +486,16 @@ int main()
 
         }
 
-        if(theBoard.CompletionCheck()){
+        if(theBoard.completionCheck()){
 
-            if(--stepCount != theBoard.GetPar()){ // --stepCount: as it incremented everytime there is no error, since this is an error, had to decrement it.
-                cout << "Sorry, you took "<< stepCount << " moves and you must finish within " << theBoard.GetPar()<<" moves before moving on." << endl;
+            if(--stepCount != theBoard.getPar()){ // --stepCount: as it incremented everytime there is no error, since this is an error, had to decrement it.
+                cout << "Sorry, you took "<< stepCount << " moves and you must finish within " << theBoard.getPar()<<" moves before moving on." << endl;
                 stepCount = 1;
+//                 theBoard = allTheBoards.getBoard( currentBoardIndex); //returns a board instance with current board loaded
+//                 theBoard.DisplayBoard();
             }
             else{
-                score = score + theBoard.GetPar();
+                score = score + theBoard.getPar();
                 cout<< "Congratulations!  On to the next level."<< endl;
                 cout<< "Score: " << score << endl << endl;
                 currentBoardIndex++;
